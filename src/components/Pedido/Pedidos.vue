@@ -3,13 +3,13 @@
     <titulo texto="Todos os Pedidos" />
     <h3 class="lblForm">Dados do Pedido</h3>
     <div class="container">
-      <form>
+      <div class="form">
         <div class="row">
           <div class="col-25">
             <label>Data do pedido</label>
           </div>
           <div class="col-75">
-            <input type="date" placeholder="Data" v-model="data_registro" required />
+            <input type="date" placeholder="Data" v-model="data_registro"/>
           </div>
         </div>
         <div class="row">
@@ -47,9 +47,9 @@
         <div class="row">
           <button class="btnForm" v-if="editando == false" @click="adicionar()">Adicionar</button>
           <button class="btnForm" v-if="editando" @click="atualizar()">Gravar</button>
-          <button class="btnForm" v-if="editando" @click="cancelar()">Cancelar</button>          
+          <button class="btnForm" v-if="editando" @click="cancelar()">Cancelar</button>
         </div>
-      </form>
+      </div>
     </div>
 
     <br>
@@ -182,12 +182,11 @@ export default {
         .get('https://pedido3.herokuapp.com/pedido/lista')
         .then((res) => {
           this.pedidos = res.data.data
-
+          this.produtosMarcados = []
           this.id = 0
           this.cliente_id = 0
           this.observacao = ''
           this.editando = false
-          this.produtosMarcados = []
         })
     },
     listaProdutos () {

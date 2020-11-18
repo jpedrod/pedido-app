@@ -3,7 +3,7 @@
     <titulo texto="Todos os Clientes" />
     <h3 class="lblForm">Dados do Cliente</h3>
     <div class="container">
-      <form>
+      <div class="form">
         <div class="row">
           <div class="col-25">
             <label for="fname">Nome</label>
@@ -50,7 +50,7 @@
           <button class="btnForm" v-if="editando" @click="atualizar()">Gravar</button>
           <button class="btnForm" v-if="editando" @click="cancelar()">Cancelar</button>
         </div>
-      </form>
+      </div>
     </div>
 
     <br>
@@ -137,6 +137,9 @@ export default {
       }
 
       this.$http.post('https://pedido3.herokuapp.com/pessoa', _pessoa)
+      this.$http.get('https://pedido3.herokuapp.com/pessoa/lista').then((res) => {
+        this.pessoas = res.data.data
+      })
       this.cancelar()
     },
     atualizar () {

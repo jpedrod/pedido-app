@@ -3,7 +3,7 @@
     <titulo texto="Todos os Produtos" />
     <h3 class="lblForm">Dados do Produto</h3>
     <div class="container">
-      <form action="action_page.php">
+      <div class="form">
         <div class="row">
           <div class="col-25">
             <label for="fname">Produto</label>
@@ -34,7 +34,7 @@
           <button v-if="editando" class="" @click="atualizar()">Gravar</button>
           <button v-if="editando" class="" @click="cancelar()">Cancelar</button>
         </div>
-      </form>
+      </div>
     </div>
 
     <br>
