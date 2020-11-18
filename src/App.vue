@@ -80,6 +80,7 @@ td.button{
 input[type="text"],
 input[type="email"],
 input[type="number"],
+input[type="date"],
 select,
 textarea {
   width: 100%;
