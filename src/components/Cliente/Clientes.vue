@@ -75,9 +75,7 @@
           <td class="colPequeno">{{ pessoa.telefone }}</td>
           <td class="colPequeno">{{ pessoa.email }}</td>
           <td class="colPequeno">
-            <Button v-if="editando == false" @click="montaDados(pessoa)"
-              >Editar</Button
-            >
+            <Button v-if="editando == false" @click="montaDados(pessoa)">Editar</Button>
             <Button @click="remover(pessoa)">Remover</Button>
           </td>
         </tr>

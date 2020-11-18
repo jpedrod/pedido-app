@@ -54,7 +54,7 @@
             <td class="colPequeno">{{ produto.descricao }}</td>
             <td class="colPequeno">{{ produto.valor }}</td>
             <td class="colPequeno">
-              <Button @click="montaDados(produto)">Editar</Button>
+              <Button v-if="editando == false" @click="montaDados(produto)">Editar</Button>
               <Button @click="remover(produto)">Remover</Button>
             </td>
           </tr>
@@ -110,6 +110,7 @@ export default {
         .then((res) => {
           this.produtos = res.data.data
 
+          this.id = 0
           this.nome = ''
           this.descricao = ''
           this.valor = ''

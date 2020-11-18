@@ -9,15 +9,25 @@
             <label>Data do pedido</label>
           </div>
           <div class="col-75">
-            <input type="date" placeholder="Data" v-model="data" required />
+            <input type="date" placeholder="Data" v-model="data_registro" required />
           </div>
         </div>
         <div class="row">
           <div class="col-25">
-            <label for="lname">Descricao</label>
+            <label for="lname">Obeservações</label>
           </div>
           <div class="col-75">
-            <textarea type="text" placeholder="Descrição" v-model="descricao" />
+            <textarea type="text" placeholder="Descrição" v-model="observacao" />
+          </div>
+        </div>
+        <div class="row">
+          <div class="col-25">
+            <label>Clientes</label>
+          </div>
+          <div class="col-75">
+            <select id="v-for-clientes" v-model="cliente_id" >
+                <option v-for="(cliente, index) in clientes" :key="index"  v-bind:value="cliente.id"> {{cliente.nome}} </option>
+            </select>
           </div>
         </div>
         <div class="row">
@@ -25,17 +35,19 @@
             <label for="lname">Produtos</label>
           </div>
           <div class="col-75">
-            <li v-for="(produto, index) in produtos" :key="index">
-              <input :id="produto.slug" :value="produto" name="produto" type="checkbox" v-model="produtosMarcados" />
-              <label :for="produto.slug"><span></span></label>
-            </li>
+            <div id="example-3">
+              <div v-for="(produto, index) in produtos" :key="index">
+                <input type="checkbox" v-bind:value="produto.id" v-model="produtosMarcados">
+                <label v-bind:for=produto.id> {{produto.nome}} </label>
+              </div>
+            </div>
           </div>
         </div>
         <br>
         <div class="row">
           <button class="btnForm" v-if="editando == false" @click="adicionar()">Adicionar</button>
           <button class="btnForm" v-if="editando" @click="atualizar()">Gravar</button>
-          <button class="btnForm" v-if="editando" @click="cancelar()">Cancelar</button>
+          <button class="btnForm" v-if="editando" @click="cancelar()">Cancelar</button>          
         </div>
       </form>
     </div>
@@ -45,31 +57,29 @@
     <table>
       <thead>
         <th>Cód.</th>
-        <th>Tipo</th>
-        <th>Nome</th>
-        <th>CPF</th>
-        <th>Telefone</th>
-        <th>Email</th>
+        <th>Data</th>
+        <th>nome_cliente</th>
+        <th>Obeservações</th>
+        <th>Valor</th>
         <th>Opções</th>
       </thead>
-      <tbody v-if="pessoas.length">
-        <tr v-for="(pessoa, index) in pessoas" :key="index">
-          <td> {{ pessoa.tipo }}</td>
-          <td> {{ pessoa.id }}</td>
-          <td> {{ pessoa.nome + " " + pessoa.sobrenome }}</td>
-          <td> {{ pessoa.cpf_cnpj }}</td>
-          <td> {{ pessoa.telefone }}</td>
-          <td> {{ pessoa.email }}</td>
+      <tbody v-if="pedidos.length">
+        <tr v-for="(pedido, index) in pedidos" :key="index">
+          <td> {{ pedido.id }}</td>
+          <td> {{ pedido.data_registro }}</td>
+          <td> {{ pedido.nome_cliente }}</td>
+          <td> {{ pedido.observacao }}</td>
+          <td> {{ pedido.valor_total }}</td>
           <td>
-            <Button v-if="editando == false" @click="montaDados(pessoa)">Editar</Button>
-            <Button @click="remover(pessoa)">Remover</Button>
+            <Button v-if="editando == false" @click="montaDados(pedido)">Editar</Button>
+            <Button @click="remover(pedido)">Remover</Button>
           </td>
         </tr>
       </tbody>
       <tfoot v-else>
         <tr>
           <td colspan="7" style="text-align: center">
-            <h5>Nenhum cliente localizado</h5>
+            <h5>Nenhum pedido Localizado</h5>
           </td>
         </tr>
       </tfoot>
@@ -88,41 +98,48 @@ export default {
     return {
       titulo: 'Clientes',
       produtosMarcados: [],
-      data: '',
-      descricao: '',
-      tipo: '',
-      nome: '',
-      sobrenome: '',
-      razao_social: '',
-      cpf_cnpj: '',
-      telefone: '',
-      email: '',
+      produtos: [],
+      pedidos: [],
+      clientes: [],
+      cliente_id: '',
+      data_registro: '',
+      observacao: '',
       editando: false
     }
   },
   created () {
+    this.$http.get('https://pedido3.herokuapp.com/pedido/lista').then((res) => {
+      this.pedidos = res.data.data
+    })
+    this.$http.get('https://pedido3.herokuapp.com/produto/lista').then((res) => {
+      this.produtos = res.data.data
+    })
     this.$http.get('https://pedido3.herokuapp.com/pessoa/lista').then((res) => {
-      this.pessoas = res.data.data
+      this.clientes = res.data.data
     })
   },
   props: {},
   methods: {
     adicionar () {
-      const _pessoa = {
-        pessoa: {
-          nome: this.nome,
-          telefone: this.telefone,
-          email: this.email,
-          pessoa_fisica: true
+      const _pedido = {
+        pedido:
+        {
+          cliente_id: this.cliente_id,
+          data_registro: '01/02/2020',
+          observacao: this.observacao
         },
-        pessoaFisica: {
-          sobrenome: this.sobrenome,
-          cpf: this.cpf_cnpj
-        }
+        produtos: this.produtosMarcados
       }
-
-      this.$http.post('https://pedido3.herokuapp.com/pessoa', _pessoa)
-      this.cancelar()
+      this.$http.post('https://pedido3.herokuapp.com/pedido', _pedido).then((res) => {
+        this.id = 0
+        this.cliente_id = 0
+        this.observacao = ''
+        this.editando = false
+        this.produtosMarcados = []
+      })
+      this.$http.get('https://pedido3.herokuapp.com/pedido/lista').then((res) => {
+        this.pedidos = res.data.data
+      })
     },
     atualizar () {
       const _pessoa = {
@@ -142,41 +159,50 @@ export default {
       this.$http.put('https://pedido3.herokuapp.com/pessoa', _pessoa)
       this.cancelar()
     },
-    montaDados (pessoa) {
-      this.id = pessoa.id
-      this.nome = pessoa.nome
-      this.telefone = pessoa.telefone
-      this.email = pessoa.email
-      this.pessoa_fisica = pessoa.pessoa_fisica
-      this.sobrenome = pessoa.sobrenome
-      this.cpf_cnpj = pessoa.cpf_cnpj
+    montaDados (pedido) {
+      this.data_registro = pedido.data_registro
+      this.observacao = pedido.observacao
+      this.cliente_id = pedido.cliente_id
       this.editando = true
 
-      const indice = this.pessoas.indexOf(pessoa)
-      this.pessoas.splice(indice, 1)
+      const indice = this.pedidos.indexOf(pedido)
+      this.pedidos.splice(indice, 1)
+
+      this.listaProdutosPedido(pedido)
     },
-    remover (pessoa) {
+    remover (pedido) {
       this.$http
-        .delete(`https://pedido3.herokuapp.com/pessoa/${pessoa.id}`)
-        .then((res) => {
-          this.pessoas = res.data.data
-        })
+        .delete(`https://pedido3.herokuapp.com/pedido/${pedido.id}`)
+      this.$http.get('https://pedido3.herokuapp.com/pedido/lista').then((res) => {
+        this.pedidos = res.data.data
+      })
     },
     cancelar () {
       this.$http
-        .get('https://pedido3.herokuapp.com/pessoa/lista')
+        .get('https://pedido3.herokuapp.com/pedido/lista')
         .then((res) => {
-          this.pessoas = res.data.data
+          this.pedidos = res.data.data
 
           this.id = 0
-          this.nome = ''
-          this.telefone = ''
-          this.email = ''
-          this.pessoa_fisica = true
-          this.sobrenome = ''
-          this.cpf_cnpj = ''
+          this.cliente_id = 0
+          this.observacao = ''
           this.editando = false
+          this.produtosMarcados = []
         })
+    },
+    listaProdutos () {
+      this.$http.get('https://pedido3.herokuapp.com/pedido/lista').then((res) => {
+        this.pedidos = res.data.data
+      })
+    },
+    listaProdutosPedido (pedido) {
+      this.$http.get(`https://pedido3.herokuapp.com/pedido/${pedido.id}`).then((res) => {
+        this.produtosMarcados = []
+        console.log(res.data.data)
+        res.data.data.forEach(element => {
+          this.produtosMarcados.push(element.id)
+        })
+      })
     }
   }
 }
