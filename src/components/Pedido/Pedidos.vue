@@ -25,7 +25,7 @@
             <label>Clientes</label>
           </div>
           <div class="col-75">
-            <select id="v-for-clientes" v-model="cliente_id" >
+            <select id="v-for-clientes" v-model="cliente_id">
                 <option v-for="(cliente, index) in clientes" :key="index"  v-bind:value="cliente.id"> {{cliente.nome}} </option>
             </select>
           </div>
@@ -124,8 +124,8 @@ export default {
       const _pedido = {
         pedido:
         {
-          cliente_id: this.cliente_id,
-          data_registro: '01/02/2020',
+          cliente_id: 0,
+          data_registro: '01/01/2021',
           observacao: this.observacao
         },
         produtos: this.produtosMarcados
@@ -135,31 +135,35 @@ export default {
         this.cliente_id = 0
         this.observacao = ''
         this.editando = false
-        this.produtosMarcados = []
       })
+
       this.$http.get('https://pedido3.herokuapp.com/pedido/lista').then((res) => {
         this.pedidos = res.data.data
       })
     },
     atualizar () {
-      const _pessoa = {
-        pessoa: {
+      const _pedido = {
+        pedido:
+        {
           id: this.id,
-          nome: this.nome,
-          telefone: this.telefone,
-          email: this.email,
-          pessoa_fisica: true
+          cliente_id: this.cliente_id,
+          data_registro: '01/01/2021',
+          observacao: this.observacao
         },
-        pessoaFisica: {
-          sobrenome: this.sobrenome,
-          cpf: this.cpf_cnpj
-        }
+        produtos: this.produtosMarcados
       }
-
-      this.$http.put('https://pedido3.herokuapp.com/pessoa', _pessoa)
-      this.cancelar()
+      console.log(_pedido)
+      this.$http.put('https://pedido3.herokuapp.com/pedido', _pedido).then((res) => {
+        this.id = 0
+        this.cliente_id = 0
+        this.observacao = ''
+        this.editando = false
+        this.pedidos = res.data.data
+        this.produtosMarcados = []
+      })
     },
     montaDados (pedido) {
+      this.id = pedido.id
       this.data_registro = pedido.data_registro
       this.observacao = pedido.observacao
       this.cliente_id = pedido.cliente_id
@@ -171,10 +175,12 @@ export default {
       this.listaProdutosPedido(pedido)
     },
     remover (pedido) {
-      this.$http
-        .delete(`https://pedido3.herokuapp.com/pedido/${pedido.id}`)
-      this.$http.get('https://pedido3.herokuapp.com/pedido/lista').then((res) => {
+      this.$http.delete(`https://pedido3.herokuapp.com/pedido/${pedido.id}`).then((res) => {
         this.pedidos = res.data.data
+
+        this.$http.get('https://pedido3.herokuapp.com/pedido/lista').then((res) => {
+          this.pedidos = res.data.data
+        })
       })
     },
     cancelar () {

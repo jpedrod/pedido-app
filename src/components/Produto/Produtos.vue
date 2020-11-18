@@ -108,12 +108,11 @@ export default {
       this.$http
         .post('https://pedido3.herokuapp.com/produto', _produto)
         .then((res) => {
-          this.produtos = res.data.data
-
           this.id = 0
           this.nome = ''
           this.descricao = ''
           this.valor = ''
+          this.produtos = res.data.data
         })
     },
     atualizar () {
@@ -125,6 +124,9 @@ export default {
       }
 
       this.$http.put('https://pedido3.herokuapp.com/produto', _produto)
+        .then((res) => {
+          this.produtos = res.data.data
+        })
       this.cancelar()
     },
     montaDados (produto) {
